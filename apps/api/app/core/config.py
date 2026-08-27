@@ -28,6 +28,23 @@ class Settings(BaseSettings):
         extra="ignore",
     )
 
+    groq_api_key: str = Field(
+        validation_alias=AliasChoices("GROQ_API_KEY", "API_KEY"),
+    )
+    llm_model: str = Field(
+        default="gpt-4o-mini",
+        validation_alias=AliasChoices("LLM_MODEL", "MODEL"),
+    )
+
+    llm_max_tokens: str = Field(
+        default=500,
+        validation_alias=AliasChoices("LLM_MAX_TOKENS", "MAX_TOKENS")
+    )
+
+    llm_temperature: str = Field(
+        default=0.7,
+        validation_alias=AliasChoices("LLM_TEMPERATURE", "TEMPERATURE")
+    )
 
 @lru_cache
 def get_settings() -> Settings:
