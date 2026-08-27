@@ -6,3 +6,10 @@ class AppException(HTTPException):
         super().__init__(status_code=status_code, detail=detail)
         self.status_code = status_code
         self.detail = detail
+
+
+class LLMServiceException(AppException):
+
+    def __init__(self, status_code: int, detail:str):
+
+        super().__init__(status_code, detail)
