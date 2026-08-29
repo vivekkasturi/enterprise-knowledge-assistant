@@ -1,6 +1,5 @@
-from groq import AsyncGroq
-
 from app.core.exceptions import LLMServiceException
+from groq import AsyncGroq
 
 
 class GroqClient:
@@ -26,9 +25,6 @@ class GroqClient:
             raise LLMServiceException(
                 status_code=500,
                 detail=f"Failed to generate response from Groq API: {(e)}",
-
             ) from e
 
         return response.choices[0].message.content
-
-    
