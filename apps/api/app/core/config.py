@@ -46,6 +46,10 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("LLM_TEMPERATURE", "TEMPERATURE")
     )
 
+    supabase_url: str = Field("SUPABASE_URL")
+
+    supabase_key: str = Field("SUPABASE_KEY")
+    
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
