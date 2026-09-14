@@ -1,13 +1,14 @@
 import requests, json
 
 class VectorStoreService:
-    def __init__(self, superbase_url: str, superbase_key:str):
-        self.superbase_url = superbase_url
-        self.superbase_key = superbase_key
+    def __init__(self, supabase_url: str, supabase_key:str):
+        self.supabase_url = supabase_url
+        self.supabase_key = supabase_key
         self.headers = {
             "Content-Type": "application/json",
-            "apikey": self.superbase_key,
-            "Authorization": f"Bearer {self.superbase_key}"
+            "apikey": self.supabase_key,
+            "Authorization": f"Bearer {self.supabase_key}",
+            "Prefer": "return=representation",
         }
 
     def add_chunk(self, document_id: str, metadata: dict, content: str, embedding: list[float]) -> dict:
@@ -20,7 +21,7 @@ class VectorStoreService:
             embedding (list[float]): The embedding vector for the chunk.
     
         """
-        url = f"{self.superbase_url}/rest/v1/rag_chunks"
+        url = f"{self.supabase_url}/rest/v1/rag_chunks"
         payload = {
             "document_id": document_id,
             "metadata": metadata,
