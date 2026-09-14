@@ -35,3 +35,24 @@ class VectorStoreService:
             return response.json()
         else:
             raise Exception(f"Failed to add chunk: {response.status_code} - {response.text}")
+
+
+    
+    def similarity_search(self, query_embedding: list[float], top_k: int = 5):
+
+        url = f"{self.supabase_url}/rest/v1/rpc/match_rag_chunks"
+
+        payload = {
+            "query_embedding": query_embedding,
+            "match_count": top_k
+        }
+
+        response = requests.post(url, headers=self.headers, data=json.dumps(payload))
+
+        if(response.status_code!=200):
+            raise Exception(f"Failed to perform similarity search: {response.status_code} - {response.text}")
+
+        return response.json()
+        
+
+    
