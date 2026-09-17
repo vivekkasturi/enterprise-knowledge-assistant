@@ -9,9 +9,10 @@ class RetrieverService:
         embedding_service: EmbeddingService,
         vector_store_service: VectorStoreService,
     ):
-        # initialize dependencies
-        self.embedding_service = embedding_service
-        self.vector_store_service = vector_store_service
+
+    # initialize dependencies
+     self.embedding_service = embedding_service
+     self.vector_store_service = vector_store_service
 
     def retrieve(self, query: str, top_k: int = 5):
 
