@@ -13,13 +13,19 @@ class RetrieverService:
         self.embedding_service = embedding_service
         self.vector_store_service = vector_store_service
 
-    def retrieve(self, query: str, top_k: int = 5):
+    def retrieve(self, query: str, top_k: int = 5, similarity_threshold: float = 0.5):
 
         # 1. Generate query embedding
         query_embedding = self.embedding_service.generate_embedding(query)
         # 2. Perform similarity search
         results = self.vector_store_service.similarity_search(
-            query_embedding=query_embedding, top_k=top_k
+            query_embedding=query_embedding,
+            top_k=top_k,
         )
+        similarity_threshold: float = 0.5
+        # Filter results based on similarity threshold
+        filtered_results = [
+            result for result in results if result["similarity"] >= similarity_threshold
+        ]
         # 3. Return results
-        return results
+        return filtered_results
