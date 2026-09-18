@@ -33,12 +33,12 @@
 
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import JSONResponse
 
 from app.api.v1.router import router as api_router
 from app.core.config import settings
-from app.core.logging import setup_logging, get_logger
 from app.core.exceptions import AppException
-from fastapi.responses import JSONResponse
+from app.core.logging import get_logger, setup_logging
 from app.middleware.request_id import request_id_middleware
 
 setup_logging()
@@ -76,12 +76,12 @@ logger.debug("Debug logging is enabled")
 @app.exception_handler(AppException)
 async def app_expection_handler(request, exc: AppException):
     logger.error("An unhandled exception occurred in the application.")
-    return  JSONResponse(
+    return JSONResponse(
         status_code=exc.status_code,
-        content={"success": False,
-        "error": {
-            "message": exc.detail,
-        }}
+        content={
+            "success": False,
+            "error": {
+                "message": exc.detail,
+            },
+        },
     )
-
-

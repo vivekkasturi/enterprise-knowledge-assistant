@@ -12,10 +12,9 @@ Rules:
 
 
 def build_rag_messages(query: str, context: str) -> list[dict[str, str]]:
-        messages = [
-            {"role": "system", "content": RAG_SYSTEM_INSTRUCTION},
-            {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{query}"}
+    messages = [
+        {"role": "system", "content": RAG_SYSTEM_INSTRUCTION},
+        {"role": "user", "content": f"Context:\n{context}\n\nQuestion:\n{query}"},
+    ]
 
-        ]
-
-        return messages
+    return messages

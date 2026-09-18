@@ -14,7 +14,6 @@ def create_document(raw_text: str, metadata: dict[str, str]) -> Document:
 
     if not raw_text.strip():
         raise ValueError("Raw text is empty. Cannot create Document.")
-  
 
     document = Document(page_content=raw_text, metadata=metadata)
 

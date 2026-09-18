@@ -1,6 +1,7 @@
 from datasets import load_dataset
-from app.rag.ingestion.document_factory import create_document
 from langchain_core.documents import Document
+
+from app.rag.ingestion.document_factory import create_document
 
 
 def load_enterprise_dataset(limit: int = 10) -> list[Document]:

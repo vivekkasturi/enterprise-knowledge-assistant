@@ -15,10 +15,10 @@ Output:
 """
 
 
-def build_chat_messages(user_message:str)-> list[dict[str, str]]:
+def build_chat_messages(user_message: str) -> list[dict[str, str]]:
 
     messages = [
-            {"role": "system", "content": SYSTEM_INSTRUCTION},
-            {"role": "user", "content": user_message}
-        ]
+        {"role": "system", "content": SYSTEM_INSTRUCTION},
+        {"role": "user", "content": user_message},
+    ]
     return messages
