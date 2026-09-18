@@ -22,8 +22,10 @@ class RAGService:
             top_k=top_k,
         )
 
-        context = "\n\n".join(result["content"] for result in results)
-
+        context = "\n\n".join(
+            f"[Source: {result['metadata'].get('title', 'Unknown')}]\n{result['content']}"
+            for result in results
+        )
         return context
 
     async def generate_final_answer(
@@ -38,6 +40,11 @@ class RAGService:
             top_k=top_k,
         )
 
+        print("context", context)
+        if not context:
+            return "I'm sorry, I couldn't find any relevant information to answer your question."
+
+        print("LLM is not called because context is empty")
         # 2. Build RAG-specific prompt
         messages = build_rag_messages(
             query=query,
@@ -48,6 +55,7 @@ class RAGService:
         response = await self.llm_service.generate(
             messages=messages,
         )
+        print(f"RAGService generated response: {response}")
 
         # 4. Return generated answer
         return response
