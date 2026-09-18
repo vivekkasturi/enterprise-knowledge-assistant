@@ -1,5 +1,6 @@
-from app.core.exceptions import LLMServiceException
 from groq import AsyncGroq
+
+from app.core.exceptions import LLMServiceException
 
 
 class GroqClient:

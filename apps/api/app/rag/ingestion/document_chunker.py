@@ -11,4 +11,3 @@ def document_chunker(documents: list[Document]) -> list[Document]:
 
     chunks = text_splitter.split_documents(documents)
     return chunks
-

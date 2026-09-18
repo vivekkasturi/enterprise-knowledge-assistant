@@ -4,7 +4,6 @@ from pathlib import Path
 from pydantic import AliasChoices, Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
-
 ROOT_DIR = Path(__file__).resolve().parents[4]
 
 
@@ -37,19 +36,18 @@ class Settings(BaseSettings):
     )
 
     llm_max_tokens: str = Field(
-        default=500,
-        validation_alias=AliasChoices("LLM_MAX_TOKENS", "MAX_TOKENS")
+        default=500, validation_alias=AliasChoices("LLM_MAX_TOKENS", "MAX_TOKENS")
     )
 
     llm_temperature: str = Field(
-        default=0.7,
-        validation_alias=AliasChoices("LLM_TEMPERATURE", "TEMPERATURE")
+        default=0.7, validation_alias=AliasChoices("LLM_TEMPERATURE", "TEMPERATURE")
     )
 
     supabase_url: str = Field("SUPABASE_URL")
 
     supabase_key: str = Field("SUPABASE_KEY")
-    
+
+
 @lru_cache
 def get_settings() -> Settings:
     return Settings()
