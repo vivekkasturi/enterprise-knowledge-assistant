@@ -22,4 +22,13 @@ results = retriever_service.retrieve(
     top_k=5,
 )
 
-print(results)
+#print(results)
+
+
+hybrid_results = retriever_service.hybrid_retrieve(
+    query="How can employees reset their password?",
+    top_k=5)
+
+print(hybrid_results)
+
+
