@@ -22,3 +22,7 @@ result = vector_store.add_chunk(
 )
 
 print(result)
+
+keyword_results = vector_store.keyword_search(keyword="How to do password reset?", top_k=5)
+
+print(keyword_results)

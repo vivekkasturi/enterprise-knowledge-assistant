@@ -17,7 +17,7 @@ class RAGService:
         query: str,
         top_k: int = 5,
     ) -> str:
-        results = self.retriever_service.retrieve(
+        results = self.retriever_service.hybrid_retrieve(
             query=query,
             top_k=top_k,
         )

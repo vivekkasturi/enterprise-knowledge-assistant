@@ -61,3 +61,23 @@ class VectorStoreService:
             )
 
         return response.json()
+
+    def keyword_search(self, keyword: str, top_k: int = 5):
+        url = f"{self.supabase_url}/rest/v1/rpc/keyword_search_rag_chunks"
+
+        response = requests.post(
+            url,
+            headers=self.headers,
+            json={
+                "search_query": keyword,
+                "match_count": top_k,
+            },
+        )
+
+        if response.status_code != 200:
+            raise VectorStoreServiceException(
+                status_code=response.status_code,
+                detail=f"Failed to perform keyword search: {response.text}",
+            )
+
+        return response.json()
