@@ -60,7 +60,7 @@ class RetrieverService:
         return ranked_results
         
 
-    def hybrid_retrieve(self, query: str, top_k: int = 5, similarity_threshold: float = 0.5):
+    def hybrid_retrieve(self, query: str, top_k: int = 10, similarity_threshold: float = 0.5):
         # 1. Generate query embedding
         query_embedding = self.embedding_service.generate_embedding(query)
 
