@@ -15,7 +15,7 @@ def get_relevant_documents(query, top_k):
             supabase_key=settings.supabase_key,
         )
     )
-    hybrid_retriver_docs = retriver_service.hybrid_retrieve(query=query, top_k=10, similarity_threshold=0.5)
+    hybrid_retriver_docs = retriver_service.hybrid_retrieve(query=query, top_k=top_k, similarity_threshold=0.5)
     return hybrid_retriver_docs
 
 
@@ -82,12 +82,36 @@ def recall_at_k(query, top_k, relevant_document_ids):
     )
 
     return recall
+
+def hit_rate_at_k(query, top_k, relevant_document_ids):
+    relevant_docs_top_k = get_relevant_documents(query, top_k)
+
+    if not relevant_docs_top_k:
+        return 0.0
+
+    ground_truth_relevant_ids = set(relevant_document_ids)
+
+    retrieved_document_ids = {
+        doc["document_id"]
+        for doc in relevant_docs_top_k
+    }
+
+    matched_ids = retrieved_document_ids.intersection(
+        ground_truth_relevant_ids
+    )
+
+    hit_rate = 1.0 if matched_ids else 0.0
+
+    return hit_rate
+
 if(__name__ == "__main__"):
     query = "What should be checked when troubleshooting NAT or egress exhaustion during cross-account GPU bursting?"
     top_k = 5
     precision = precision_at_k(query, top_k, ["dsid_229dd48e9b1d466a81ebaffe3ec84469"])
     recall = recall_at_k(query, top_k, ["dsid_229dd48e9b1d466a81ebaffe3ec84469"])
+    hit_rate = hit_rate_at_k(query, top_k, ["dsid_229dd48e9b1d466a81ebaffe3ec84469"])
     print(f"Precision@{top_k} for query '{query}': {precision:.2f}")
     print(f"recall@{top_k} for query '{query}': {recall:.2f}")
+    print(f"hit_rate@{top_k} for query '{query}': {hit_rate:.2f}")
 
 
