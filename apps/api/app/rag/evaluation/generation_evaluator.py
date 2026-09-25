@@ -194,11 +194,109 @@ GENERATED ANSWER:
         ) from exc
 
 
+
+async def evaluate_answer_relevancy(
+    query: str,
+    generated_answer: str,
+) -> float:
+    """
+    Measures how well the generated answer addresses
+    the user's question.
+
+    Score:
+        0.0 = completely irrelevant
+        1.0 = directly and fully relevant
+    """
+
+    if not query.strip():
+        return 0.0
+
+    if not generated_answer.strip():
+        return 0.0
+
+    system_prompt = """
+You are an evaluator for a Retrieval-Augmented Generation (RAG) system.
+
+Evaluate the ANSWER RELEVANCY of the generated answer.
+
+Answer Relevancy means:
+How well does the generated answer address the user's question?
+
+Instructions:
+1. Compare the generated answer with the user's question.
+2. Evaluate whether the answer directly addresses what was asked.
+3. Penalize answers that are unrelated, off-topic, or mostly irrelevant.
+4. Do NOT evaluate whether the answer is factually correct.
+5. Do NOT use retrieved context or external knowledge.
+6. Return a relevancy score between 0.0 and 1.0.
+
+Scoring guidance:
+1.0 = directly and fully addresses the question
+0.7 = mostly relevant but misses some aspects
+0.5 = partially relevant
+0.2 = mostly irrelevant
+0.0 = completely irrelevant or does not answer the question
+
+Return ONLY valid JSON.
+
+Required format:
+{
+    "score": 0.0
+}
+"""
+
+    user_prompt = f"""
+USER QUESTION:
+{query}
+
+GENERATED ANSWER:
+{generated_answer}
+"""
+
+    response = await evaluator_llm.generate(
+        messages=[
+            {
+                "role": "system",
+                "content": system_prompt,
+            },
+            {
+                "role": "user",
+                "content": user_prompt,
+            },
+        ],
+        max_tokens=100,
+        temperature=0,
+    )
+
+    try:
+        result = json.loads(response)
+
+        score = float(result["score"])
+
+        if not 0.0 <= score <= 1.0:
+            raise ValueError(
+                f"Answer relevancy score must be between 0 and 1: {score}"
+            )
+
+        return round(score, 4)
+
+    except (
+        json.JSONDecodeError,
+        KeyError,
+        TypeError,
+        ValueError,
+    ) as exc:
+        raise ValueError(
+            f"Invalid answer relevancy evaluator response: {response}"
+        ) from exc
+
+
 if __name__ == "__main__":
     import asyncio
 
     query = "What causes NAT exhaustion?"
 
+    # The retrieved context should contain information that can be used to verify the factual claims in the generated answer. In this case, the context mentions that NAT exhaustion can occur due to high concurrent outbound connections and that NAT gateway metrics and SNAT port usage should be monitored. The generated answer states that NAT exhaustion can occur when SNAT ports are exhausted because of high concurrent outbound traffic. The evaluator will check if the claims in the generated answer are supported by the retrieved context.
     retrieved_contexts = [
         """
         NAT exhaustion can occur when SNAT ports are exhausted
@@ -211,6 +309,16 @@ if __name__ == "__main__":
     NAT exhaustion can occur when SNAT ports are exhausted
     because of high concurrent outbound traffic.
     """
+    # The generated answer is relevant to the query used for relevant_score
+    relevant_answer = """
+    NAT exhaustion can occur when available SNAT ports
+    are exhausted due to high concurrent outbound connections.
+    """
+    # The generated answer is not relevant to the queryused for irrelevant_score
+    irrelevant_answer = """
+    PostgreSQL supports indexes that can improve database
+    query performance.
+    """
 
     score = asyncio.run(
         evaluate_faithfulness(
@@ -220,4 +328,20 @@ if __name__ == "__main__":
         )
     )
 
-    print(f"Faithfulness: {score}")
+relevant_score = asyncio.run(
+        evaluate_answer_relevancy(
+            query=query,
+            generated_answer=relevant_answer,
+        )
+    )
+
+irrelevant_score = asyncio.run(
+     evaluate_answer_relevancy(
+          query=query,
+          generated_answer=irrelevant_answer,
+     ))
+
+
+print(f"Relevant answer score: {relevant_score}")
+print(f"Irrelevant answer score: {irrelevant_score}")
+print(f"Faithfulness: {score}")
