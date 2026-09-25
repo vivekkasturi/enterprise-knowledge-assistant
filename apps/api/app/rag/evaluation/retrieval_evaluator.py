@@ -104,14 +104,41 @@ def hit_rate_at_k(query, top_k, relevant_document_ids):
 
     return hit_rate
 
+def reciprocal_rank_at_k(query, top_k, relevant_document_ids):
+    relevant_docs_top_k = get_relevant_documents(query, top_k)
+
+    if not relevant_docs_top_k:
+        return 0.0
+    
+    ground_truth_relevant_ids = (relevant_document_ids)
+
+    for rank, doc in enumerate(relevant_docs_top_k, start=1):
+        if doc["document_id"] in ground_truth_relevant_ids:
+            return 1/rank
+        
+    return 0.0
+
+
+    # mean reciprocal rank (MRR) is calculated by averaging the reciprocal ranks of multiple queries. If you have multiple queries, you can compute the MRR as follows:
+    # query1_rr = reciprocal_rank_at_k(query, top_k, relevant_document_ids)
+    # query2_rr = reciprocal_rank_at_k(query, top_k, relevant_document_ids)
+    # query3_rr = reciprocal_rank_at_k(query, top_k, relevant_document_ids)
+
+    # mrr = (query1_rr + query2_rr + query3_rr) / 3
+
+        
 if(__name__ == "__main__"):
     query = "What should be checked when troubleshooting NAT or egress exhaustion during cross-account GPU bursting?"
     top_k = 5
     precision = precision_at_k(query, top_k, ["dsid_229dd48e9b1d466a81ebaffe3ec84469"])
     recall = recall_at_k(query, top_k, ["dsid_229dd48e9b1d466a81ebaffe3ec84469"])
     hit_rate = hit_rate_at_k(query, top_k, ["dsid_229dd48e9b1d466a81ebaffe3ec84469"])
+    reciprocal_rank = reciprocal_rank_at_k(query, top_k, ["dsid_229dd48e9b1d466a81ebaffe3ec84469"])
     print(f"Precision@{top_k} for query '{query}': {precision:.2f}")
     print(f"recall@{top_k} for query '{query}': {recall:.2f}")
     print(f"hit_rate@{top_k} for query '{query}': {hit_rate:.2f}")
+    print(f"mmr@{top_k} for query '{query}': {reciprocal_rank}")
 
+    
+    
 
