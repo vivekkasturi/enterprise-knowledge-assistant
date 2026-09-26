@@ -22,7 +22,7 @@ results = retriever_service.retrieve(
     top_k=5,
 )
 
-#print(results)
+# print(results)
 
 # Test for reciprocal rank fusion
 # hybrid_results = retriever_service.hybrid_retrieve(
@@ -36,12 +36,11 @@ results = retriever_service.retrieve(
 hybrid_results = retriever_service.hybrid_retrieve(
     query="How should an enterprise billing dispute be investigated?",
     top_k=5,
-    department="finance",)
+    department="finance",
+)
 
 for result in hybrid_results:
     print(
         result["document_id"],
         result["metadata"].get("department"),
     )
-
-

@@ -58,7 +58,6 @@
 #         print(f"Faithfulness score: {score}")
 
 
-
 import json
 
 from app.core.config import get_settings
@@ -169,9 +168,7 @@ GENERATED ANSWER:
             raise ValueError("supported_claims cannot be negative")
 
         if supported_claims > total_claims:
-            raise ValueError(
-                "supported_claims cannot exceed total_claims"
-            )
+            raise ValueError("supported_claims cannot exceed total_claims")
 
         # EKA convention
         if total_claims == 0:
@@ -192,7 +189,6 @@ GENERATED ANSWER:
         raise ValueError(
             f"Invalid faithfulness evaluator response: {response}"
         ) from exc
-
 
 
 async def evaluate_answer_relevancy(
@@ -274,9 +270,7 @@ GENERATED ANSWER:
         score = float(result["score"])
 
         if not 0.0 <= score <= 1.0:
-            raise ValueError(
-                f"Answer relevancy score must be between 0 and 1: {score}"
-            )
+            raise ValueError(f"Answer relevancy score must be between 0 and 1: {score}")
 
         return round(score, 4)
 
@@ -329,17 +323,18 @@ if __name__ == "__main__":
     )
 
 relevant_score = asyncio.run(
-        evaluate_answer_relevancy(
-            query=query,
-            generated_answer=relevant_answer,
-        )
+    evaluate_answer_relevancy(
+        query=query,
+        generated_answer=relevant_answer,
     )
+)
 
 irrelevant_score = asyncio.run(
-     evaluate_answer_relevancy(
-          query=query,
-          generated_answer=irrelevant_answer,
-     ))
+    evaluate_answer_relevancy(
+        query=query,
+        generated_answer=irrelevant_answer,
+    )
+)
 
 
 print(f"Relevant answer score: {relevant_score}")

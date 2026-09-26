@@ -23,10 +23,9 @@ vector_store = VectorStoreService(
 #     embedding=embedding,
 # )
 
-#print(result)
+# print(result)
 
 # keyword_results = vector_store.keyword_search(keyword="How to do password reset?", top_k=5, department="finance")
-
 
 
 # Test for similarity search with department filter
@@ -37,9 +36,7 @@ embedding = embedding_service.generate_embedding(content)
 # keyword_results = vector_store.keyword_search(keyword="How to do password reset?", top_k=5, department="finance")
 # Test for similarity search with department filter
 vector_similarity_results = vector_store.similarity_search(
-    query_embedding=embedding,
-    top_k=5,
-    department="finance"
+    query_embedding=embedding, top_k=5, department="finance"
 )
 
 for result in vector_similarity_results:
@@ -54,7 +51,9 @@ for result in vector_similarity_results:
 
 # embedding = embedding_service.generate_embedding(content)
 
-keyword_results = vector_store.keyword_search(keyword="billing dispute", top_k=5, department="finance")
+keyword_results = vector_store.keyword_search(
+    keyword="billing dispute", top_k=5, department="finance"
+)
 
 for result in keyword_results:
     print(

@@ -36,7 +36,7 @@ class RetrieverService:
         rrf_k = 60  # You can adjust this parameter based on your needs
 
         # Assign scores based on rank for similarity results
-        for rank, result in enumerate(similarity_results, start = 1):
+        for rank, result in enumerate(similarity_results, start=1):
             score = 1 / (rrf_k + rank)
             fused_results[result["id"]] = {
                 **result,
@@ -44,7 +44,7 @@ class RetrieverService:
             }
 
         # Assign scores based on rank for keyword results
-        for rank, result in enumerate(keyword_results, start = 1):
+        for rank, result in enumerate(keyword_results, start=1):
             score = 1 / (rrf_k + rank)
             if result["id"] in fused_results:
                 fused_results[result["id"]]["rrf_score"] += score
@@ -55,33 +55,41 @@ class RetrieverService:
                 }
 
         # Sort the fused results based on the combined score
-        ranked_results = sorted(fused_results.values(), key = lambda x: x["rrf_score"], reverse = True)
-        
-        return ranked_results
-        
+        ranked_results = sorted(
+            fused_results.values(), key=lambda x: x["rrf_score"], reverse=True
+        )
 
-    def hybrid_retrieve(self, query: str, top_k: int = 10, department: str | None = None, similarity_threshold: float = 0.5):
+        return ranked_results
+
+    def hybrid_retrieve(
+        self,
+        query: str,
+        top_k: int = 10,
+        department: str | None = None,
+        similarity_threshold: float = 0.5,
+    ):
         # 1. Generate query embedding
         query_embedding = self.embedding_service.generate_embedding(query)
 
         # 2. Perform similarity search
         similarity_results = self.vector_store_service.similarity_search(
-            query_embedding=query_embedding,
-            top_k=top_k,
-            department=department  
+            query_embedding=query_embedding, top_k=top_k, department=department
         )
         # 3. Perform keyword search
         keyword_results = self.vector_store_service.keyword_search(
-            keyword=query, top_k=top_k,
-            department=department
+            keyword=query, top_k=top_k, department=department
         )
 
         # Filter using similarity threshold
         filtered_similarity_results = [
-            result for result in similarity_results if result["similarity"] >= similarity_threshold
+            result
+            for result in similarity_results
+            if result["similarity"] >= similarity_threshold
         ]
 
         # 4. Fuse using reciprocal rank fusion
-        fused_reciprocal_results = self.reciprocal_rank_fusion(filtered_similarity_results, keyword_results)
+        fused_reciprocal_results = self.reciprocal_rank_fusion(
+            filtered_similarity_results, keyword_results
+        )
 
         return fused_reciprocal_results[:top_k]
