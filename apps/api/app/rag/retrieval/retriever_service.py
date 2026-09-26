@@ -60,7 +60,7 @@ class RetrieverService:
         return ranked_results
         
 
-    def hybrid_retrieve(self, query: str, top_k: int = 10, similarity_threshold: float = 0.5):
+    def hybrid_retrieve(self, query: str, top_k: int = 10, department: str | None = None, similarity_threshold: float = 0.5):
         # 1. Generate query embedding
         query_embedding = self.embedding_service.generate_embedding(query)
 
@@ -68,10 +68,12 @@ class RetrieverService:
         similarity_results = self.vector_store_service.similarity_search(
             query_embedding=query_embedding,
             top_k=top_k,
+            department=department  
         )
         # 3. Perform keyword search
         keyword_results = self.vector_store_service.keyword_search(
-            keyword=query, top_k=top_k
+            keyword=query, top_k=top_k,
+            department=department
         )
 
         # Filter using similarity threshold
