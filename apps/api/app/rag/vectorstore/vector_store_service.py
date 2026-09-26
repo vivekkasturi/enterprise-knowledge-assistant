@@ -47,11 +47,11 @@ class VectorStoreService:
                 f"Failed to add chunk: {response.status_code} - {response.text}"
             )
 
-    def similarity_search(self, query_embedding: list[float], top_k: int = 5):
+    def similarity_search(self, query_embedding: list[float], top_k: int = 5, department: str | None = None,):
 
         url = f"{self.supabase_url}/rest/v1/rpc/match_rag_chunks"
 
-        payload = {"query_embedding": query_embedding, "match_count": top_k}
+        payload = {"query_embedding": query_embedding, "match_count": top_k,  "filter_department": department}
 
         response = requests.post(url, headers=self.headers, data=json.dumps(payload))
 
@@ -62,7 +62,7 @@ class VectorStoreService:
 
         return response.json()
 
-    def keyword_search(self, keyword: str, top_k: int = 5):
+    def keyword_search(self, keyword: str, top_k: int = 5, department: str | None = None):
         url = f"{self.supabase_url}/rest/v1/rpc/keyword_search_rag_chunks"
 
         response = requests.post(
@@ -71,6 +71,7 @@ class VectorStoreService:
             json={
                 "search_query": keyword,
                 "match_count": top_k,
+                "filter_department": department,
             },
         )
 
