@@ -1,24 +1,24 @@
 from app.prompts.rag_prompt import build_rag_messages
+from app.rag.reranking.reranker_service import RerankService
 from app.rag.retrieval.retriever_service import RetrieverService
-from app.rag.reranking.reranker_service import RerankerService
 from app.rag.tokenization.token_counter import TokenCounter
 from app.services.llmservice import LLMService
+
 
 class RAGService:
     def __init__(
         self,
         retriever_service: RetrieverService,
         llm_service: LLMService,
-        reranker_service: RerankerService,
+        reranker_service: RerankService,
         token_counter: TokenCounter,
-        rag_max_tokens: int
+        rag_max_tokens: int,
     ):
         self.retriever_service = retriever_service
         self.llm_service = llm_service
         self.reranker_service = reranker_service
         self.token_counter = token_counter
         self.rag_max_tokens = rag_max_tokens
-
 
     def build_context(
         self,
@@ -29,24 +29,28 @@ class RAGService:
             query=query,
             top_k=top_k,
         )
+        if not results:
+            return ""
         selected_chunks = []
         total_tokens = 0
         # Rerank the retrieved documents using the RerankerService
 
-        reranked_docs = self.reranker_service.rerank(query=query, documents=results, top_k=top_k)
+        reranked_docs = self.reranker_service.rerank(
+            query=query, documents=results, top_k=top_k
+        )
 
         if not reranked_docs:
             return ""
-        
+
         for result in reranked_docs:
-           formatted_content = (
-                    f"[Source: {result['metadata'].get('title', 'Unknown')}]\n"
-                 f"{result['content']}"
-)
+            formatted_content = (
+                f"[Source: {result['metadata'].get('title', 'Unknown')}]\n"
+                f"{result['content']}"
+            )
             chunk_tokens = self.token_counter.count_tokens(formatted_content)
             if total_tokens + chunk_tokens > self.rag_max_tokens:
                 continue
-            
+
             selected_chunks.append(formatted_content)
             total_tokens += chunk_tokens
 

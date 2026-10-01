@@ -2,9 +2,7 @@ import json
 
 import requests
 
-
-class VectorStoreServiceException(Exception):
-    pass
+from app.core.exceptions import VectorStoreException
 
 
 class VectorStoreService:
@@ -40,11 +38,12 @@ class VectorStoreService:
 
         response = requests.post(url, headers=self.headers, data=json.dumps(payload))
 
-        if response.status_code == 201:
+        if response.status_code == 200:
             return response.json()
         else:
-            raise VectorStoreServiceException(
-                f"Failed to add chunk: {response.status_code} - {response.text}"
+            raise VectorStoreException(
+                status_code=response.status_code,
+                detail=f"Failed to add chunk: {response.text}",
             )
 
     def similarity_search(
@@ -65,8 +64,9 @@ class VectorStoreService:
         response = requests.post(url, headers=self.headers, data=json.dumps(payload))
 
         if response.status_code != 200:
-            raise VectorStoreServiceException(
-                f"Failed to perform similarity search: {response.status_code} - {response.text}"
+            raise VectorStoreException(
+                status_code=response.status_code,
+                detail=f"Failed to perform similarity search: {response.text}",
             )
 
         return response.json()
@@ -87,7 +87,7 @@ class VectorStoreService:
         )
 
         if response.status_code != 200:
-            raise VectorStoreServiceException(
+            raise VectorStoreException(
                 status_code=response.status_code,
                 detail=f"Failed to perform keyword search: {response.text}",
             )

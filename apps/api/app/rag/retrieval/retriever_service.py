@@ -1,3 +1,4 @@
+from app.core.exceptions import RetrievalException, VectorStoreException
 from app.rag.embeddings.embedding_service import EmbeddingService
 from app.rag.vectorstore.vector_store_service import VectorStoreService
 
@@ -71,14 +72,21 @@ class RetrieverService:
         # 1. Generate query embedding
         query_embedding = self.embedding_service.generate_embedding(query)
 
-        # 2. Perform similarity search
-        similarity_results = self.vector_store_service.similarity_search(
-            query_embedding=query_embedding, top_k=top_k, department=department
-        )
-        # 3. Perform keyword search
-        keyword_results = self.vector_store_service.keyword_search(
-            keyword=query, top_k=top_k, department=department
-        )
+        try:
+            # 2. Perform similarity search
+            similarity_results = self.vector_store_service.similarity_search(
+                query_embedding=query_embedding, top_k=top_k, department=department
+            )
+            # 3. Perform keyword search
+            keyword_results = self.vector_store_service.keyword_search(
+                keyword=query, top_k=top_k, department=department
+            )
+
+        except VectorStoreException as e:
+            raise RetrievalException(
+                status_code=e.status_code,
+                detail=f"Failed to perform retrieval: {e.detail}",
+            ) from e
 
         # Filter using similarity threshold
         filtered_similarity_results = [
