@@ -8,7 +8,7 @@ class InMemoryCache:
     def set(self, key, value, ttl=None):
         expiration_time = time.time() + ttl if ttl else None
         self.cache[key] = (value, expiration_time)
- 
+
     def get(self, key):
         if key in self.cache:
             value, expiration_time = self.cache[key]

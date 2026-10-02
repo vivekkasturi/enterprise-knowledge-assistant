@@ -12,9 +12,7 @@ settings = get_settings()
 # Cache service
 in_memory_cache = InMemoryCache()
 
-cache_service = CacheService(
-    cache=in_memory_cache
-)
+cache_service = CacheService(cache=in_memory_cache)
 
 # Embedding service
 embedding_service = EmbeddingService()
@@ -29,7 +27,7 @@ vector_store_service = VectorStoreService(
 retriever_service = RetrieverService(
     embedding_service=embedding_service,
     vector_store_service=vector_store_service,
-    cache_service=cache_service
+    cache_service=cache_service,
 )
 
 # RAG service

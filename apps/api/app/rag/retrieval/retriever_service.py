@@ -1,4 +1,7 @@
-from app.cache.build_embedding_cache_key import build_cache_key
+from app.cache.build_embedding_cache_key import (
+    build_cache_key,
+    build_retrieval_cache_key,
+)
 from app.cache.cache_service import CacheService
 from app.core.exceptions import RetrievalException, VectorStoreException
 from app.rag.embeddings.embedding_service import EmbeddingService
@@ -72,55 +75,73 @@ class RetrieverService:
         department: str | None = None,
         similarity_threshold: float = 0.5,
     ):
-        # Build cache key
-        model_name = self.embedding_service.embedding_model_name
-        cache_key = build_cache_key(query, model_name=model_name)
 
-        cached_embedding = self.cache_service.get(cache_key)
-
-        if cached_embedding is not None:
-            print("✅ EMBEDDING CACHE HIT")
-            query_embedding = cached_embedding
-        else:
-            print("❌ EMBEDDING CACHE MISS")
-
-            # 1. Generate query embedding
-            query_embedding = self.embedding_service.generate_embedding(query)
-
-            self.cache_service.set(cache_key, query_embedding, timeout=3600)
-
-        try:
-            # 2. Perform similarity search
-            similarity_results = self.vector_store_service.similarity_search(
-                query_embedding=query_embedding, top_k=top_k, department=department
-            )
-            # 3. Perform keyword search
-            keyword_results = self.vector_store_service.keyword_search(
-                keyword=query, top_k=top_k, department=department
-            )
-
-        except VectorStoreException as e:
-            raise RetrievalException(
-                status_code=e.status_code,
-                detail=f"Failed to perform retrieval: {e.detail}",
-            ) from e
-
-        # Filter using similarity threshold
-        filtered_similarity_results = [
-            result
-            for result in similarity_results
-            if result["similarity"] >= similarity_threshold
-        ]
-
-        # 4. Fuse using reciprocal rank fusion
-        fused_reciprocal_results = self.reciprocal_rank_fusion(
-            filtered_similarity_results, keyword_results
+        retrieval_cache_key = build_retrieval_cache_key(
+            query=query,
+            department=department,
+            top_k=top_k,
+            similarity_threshold=similarity_threshold,
         )
+        cached_results = self.cache_service.get(retrieval_cache_key)
 
-        return fused_reciprocal_results[:top_k]
+        if cached_results is not None:
+            print("✅ RETRIEVAL CACHE HIT")
+            return cached_results
+
+        else:
+            print("❌ RETRIEVAL CACHE MISS")
+            # Build cache key
+            model_name = self.embedding_service.embedding_model_name
+            cache_key = build_cache_key(query, model_name=model_name)
+            cached_embedding = self.cache_service.get(cache_key)
+
+            if cached_embedding is not None:
+                print("✅ EMBEDDING CACHE HIT")
+                query_embedding = cached_embedding
+            else:
+                print("❌ EMBEDDING CACHE MISS")
+
+                # 1. Generate query embedding
+                query_embedding = self.embedding_service.generate_embedding(query)
+
+                self.cache_service.set(cache_key, query_embedding, timeout=3600)
+
+            try:
+                # 2. Perform similarity search
+                similarity_results = self.vector_store_service.similarity_search(
+                    query_embedding=query_embedding, top_k=top_k, department=department
+                )
+                # 3. Perform keyword search
+                keyword_results = self.vector_store_service.keyword_search(
+                    keyword=query, top_k=top_k, department=department
+                )
+
+            except VectorStoreException as e:
+                raise RetrievalException(
+                    status_code=e.status_code,
+                    detail=f"Failed to perform retrieval: {e.detail}",
+                ) from e
+
+            # Filter using similarity threshold
+            filtered_similarity_results = [
+                result
+                for result in similarity_results
+                if result["similarity"] >= similarity_threshold
+            ]
+
+            # 4. Fuse using reciprocal rank fusion
+            fused_reciprocal_results = self.reciprocal_rank_fusion(
+                filtered_similarity_results, keyword_results
+            )
+            final_results = fused_reciprocal_results[:top_k]
+
+            # Cache the final results
+            self.cache_service.set(retrieval_cache_key, final_results, timeout=3600)
+        return final_results
+
 
 #  To test the RetrieverService independently
- 
+
 if __name__ == "__main__":
     from app.cache.cache_service import CacheService
     from app.cache.in_memory_cache import InMemoryCache
@@ -145,15 +166,16 @@ if __name__ == "__main__":
         cache_service=cache_service,
     )
 
-    query = "What is the capital of France?"
-    query1 = "who are you?"
+    # query = "What is the capital of France?"
+    # query = "who are you?"
+    query = "What is the capital of India?"
     try:
         print("First retrieval:")
         first_results = retriever_service.hybrid_retrieve(query=query, top_k=5)
         print(first_results)
 
         print("Second retrieval:")
-        second_results = retriever_service.hybrid_retrieve(query=query1, top_k=5)
+        second_results = retriever_service.hybrid_retrieve(query=query, top_k=5)
         print(second_results)
     except RetrievalException as e:
         print(f"Retrieval failed ({e.status_code}): {e.detail}")
