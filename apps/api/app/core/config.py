@@ -43,6 +43,8 @@ class Settings(BaseSettings):
         default=0.7, validation_alias=AliasChoices("LLM_TEMPERATURE", "TEMPERATURE")
     )
 
+    rag_max_tokens: int = Field(default=2000, validation_alias="RAG_MAX_TOKENS")
+
     supabase_url: str = Field("SUPABASE_URL")
 
     supabase_key: str = Field("SUPABASE_KEY")

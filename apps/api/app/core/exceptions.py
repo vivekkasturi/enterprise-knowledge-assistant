@@ -10,10 +10,14 @@ class AppException(HTTPException):
 
 class LLMServiceException(AppException):
     def __init__(self, status_code: int, detail: str):
-
         super().__init__(status_code, detail)
 
 
-class VectorStoreServiceException(AppException):
+class VectorStoreException(AppException):
+    def __init__(self, status_code: int, detail: str):
+        super().__init__(status_code, detail)
+
+
+class RetrievalException(AppException):
     def __init__(self, status_code: int, detail: str):
         super().__init__(status_code, detail)

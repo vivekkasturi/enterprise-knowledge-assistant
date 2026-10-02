@@ -2,9 +2,7 @@ import json
 
 import requests
 
-
-class VectorStoreServiceException(Exception):
-    pass
+from app.core.exceptions import VectorStoreException
 
 
 class VectorStoreService:
@@ -40,29 +38,42 @@ class VectorStoreService:
 
         response = requests.post(url, headers=self.headers, data=json.dumps(payload))
 
-        if response.status_code == 201:
+        if response.status_code == 200:
             return response.json()
         else:
-            raise VectorStoreServiceException(
-                f"Failed to add chunk: {response.status_code} - {response.text}"
+            raise VectorStoreException(
+                status_code=response.status_code,
+                detail=f"Failed to add chunk: {response.text}",
             )
 
-    def similarity_search(self, query_embedding: list[float], top_k: int = 5):
+    def similarity_search(
+        self,
+        query_embedding: list[float],
+        top_k: int = 5,
+        department: str | None = None,
+    ):
 
         url = f"{self.supabase_url}/rest/v1/rpc/match_rag_chunks"
 
-        payload = {"query_embedding": query_embedding, "match_count": top_k}
+        payload = {
+            "query_embedding": query_embedding,
+            "match_count": top_k,
+            "filter_department": department,
+        }
 
         response = requests.post(url, headers=self.headers, data=json.dumps(payload))
 
         if response.status_code != 200:
-            raise VectorStoreServiceException(
-                f"Failed to perform similarity search: {response.status_code} - {response.text}"
+            raise VectorStoreException(
+                status_code=response.status_code,
+                detail=f"Failed to perform similarity search: {response.text}",
             )
 
         return response.json()
 
-    def keyword_search(self, keyword: str, top_k: int = 5):
+    def keyword_search(
+        self, keyword: str, top_k: int = 5, department: str | None = None
+    ):
         url = f"{self.supabase_url}/rest/v1/rpc/keyword_search_rag_chunks"
 
         response = requests.post(
@@ -71,11 +82,12 @@ class VectorStoreService:
             json={
                 "search_query": keyword,
                 "match_count": top_k,
+                "filter_department": department,
             },
         )
 
         if response.status_code != 200:
-            raise VectorStoreServiceException(
+            raise VectorStoreException(
                 status_code=response.status_code,
                 detail=f"Failed to perform keyword search: {response.text}",
             )
