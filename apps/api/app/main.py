@@ -39,6 +39,7 @@ from app.api.v1.router import router as api_router
 from app.core.config import settings
 from app.core.exceptions import AppException
 from app.core.logging import get_logger, setup_logging
+from app.middleware.rate_limit_middleware import RateLimitMiddleware
 from app.middleware.request_id import request_id_middleware
 
 setup_logging()
@@ -52,8 +53,9 @@ app = FastAPI(
     version=settings.app_version,
 )
 
+# Add middleware layers to the FastAPI application
 app.add_middleware(request_id_middleware)
-
+app.add_middleware(RateLimitMiddleware, rate_limit=3, time_window=60)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_url],
