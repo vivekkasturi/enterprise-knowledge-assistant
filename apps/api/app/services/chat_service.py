@@ -27,10 +27,10 @@ class ChatService:
         logger.info("ChatService chat method called")
         return {"message": "Hello from ChatService!"}
 
-    async def chat_response(self, user_message: str):
+    async def chat_response(self, user_message: str, request_id: str | None = None):
         logger.info("ChatService chat_response method called")
 
         response = await self.rag_service.generate_final_answer(
-            query=user_message, top_k=5
+            query=user_message, top_k=5, request_id=request_id
         )
         return {"message": response}

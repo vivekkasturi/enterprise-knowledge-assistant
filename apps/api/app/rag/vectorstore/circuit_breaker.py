@@ -21,27 +21,26 @@ class CircuitBreaker:
 
     
     def can_execute(self) -> bool:
-    """
-    Decide whether a request is currently allowed
-    to call the external dependency.
-    """
+        """
+        Decide whether a request is currently allowed
+        to call the external dependency.
+        """
+        if self.state == "CLOSED":
+            return True
 
-    if self.state == "CLOSED":
-        return True
+        if self.state == "OPEN":
+            current_time = time.time()
 
-    if self.state == "OPEN":
-        current_time = time.time()
+            if current_time - self.opened_at >= self.recovery_time:
+                self.state = "HALF_OPEN"
+                return True
 
-        if current_time - self.opened_at >= self.recovery_time:
-            self.state = "HALF_OPEN"
+            return False
+
+        if self.state == "HALF_OPEN":
             return True
 
         return False
-
-    if self.state == "HALF_OPEN":
-        return True
-
-    return False
 
     def record_failure(self):
         """
