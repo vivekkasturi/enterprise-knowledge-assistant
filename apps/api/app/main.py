@@ -55,7 +55,7 @@ app = FastAPI(
 
 # Add middleware layers to the FastAPI application
 app.add_middleware(request_id_middleware)
-app.add_middleware(RateLimitMiddleware, rate_limit=3, time_window=60)
+app.add_middleware(RateLimitMiddleware, rate_limit=300, time_window=60)
 app.add_middleware(
     CORSMiddleware,
     allow_origins=[settings.frontend_url],

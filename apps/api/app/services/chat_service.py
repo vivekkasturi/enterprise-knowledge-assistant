@@ -34,3 +34,11 @@ class ChatService:
             query=user_message, top_k=5, request_id=request_id
         )
         return {"message": response}
+
+    async def chat_stream(self, user_message: str, request_id: str | None = None):
+        logger.info("ChatService chat_stream method called")
+
+        async for chunk in self.rag_service.stream_final_answer(
+            query=user_message, top_k=5, request_id=request_id
+        ):
+            yield chunk

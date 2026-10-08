@@ -208,3 +208,57 @@ class RAGService:
 
         # 4. Return generated answer
         return response
+
+
+
+    async def stream_final_answer(
+    self,
+    query: str,
+    top_k: int = 5,
+    request_id: str | None = None,
+    ):
+        """
+        Stream the final answer from the LLM based on the query and context.
+        """
+
+        context, context_metrics = self._build_context_with_metrics(
+            query=query,
+            top_k=top_k,
+            request_id=request_id,
+        )
+
+        if not context:
+            yield "I'm sorry, I couldn't find any relevant information to answer your question."
+            return
+
+        messages = build_rag_messages(
+            query=query,
+            context=context,
+        )
+
+        start_time = time.perf_counter()
+
+        try:
+            async for chunk in self.llm_service.stream(messages=messages):
+                yield chunk
+
+            stream_duration_ms = (time.perf_counter() - start_time) * 1000
+
+            self._log_latency(
+                request_id,
+                "llm_stream_total",
+                stream_duration_ms,
+                **context_metrics,
+            )
+
+        except LLMServiceException as e:
+            failure_latency_ms = (time.perf_counter() - start_time) * 1000
+
+            logger.exception(
+                "RAG LLM streaming failed | request_id=%s | "
+                "latency_ms=%.2f | stage=llm_streaming | error=%s",
+                request_id or "unknown",
+                failure_latency_ms,
+                e.detail,
+            )
+            raise
