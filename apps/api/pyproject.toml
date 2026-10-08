@@ -17,6 +17,7 @@ dependencies = [
     "pydantic-settings>=2.14.2",
     "sentence-transformers>=6.0.0",
     "supabase>=2.31.0",
+    "tiktoken>=0.14.0",
 ]
 
 [project.scripts]

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { chatResponseApi, getChatStatus } from "../api/chat.api"
+import { getChatStatus, chatStreamAPI } from "../api/chat.api"
 
 export default function ChatBox() {
   const [message, setMessage] = useState("Hello from frontend");
@@ -22,9 +22,15 @@ export default function ChatBox() {
 
   async function handlePostMessage() {
     setIsLoading(true);
+    setResult("");
     try {
-      const data = await chatResponseApi({ message });
-      setResult(JSON.stringify(data));
+      // const data = await chatResponseApi({ message });
+      console.log("### STREAM BUTTON HANDLER ###");
+      await chatStreamAPI({ message }, (chunk) => {
+        console.log("### UI STREAM CHUNK ###", chunk);
+        setResult((prevResult) => prevResult + chunk);
+        
+      })
     } catch (error) {
       setResult(error instanceof Error ? error.message : "Unknown error");
     } finally {
