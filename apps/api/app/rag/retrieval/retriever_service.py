@@ -68,7 +68,7 @@ class RetrieverService:
 
         return ranked_results
 
-    def hybrid_retrieve(
+    async def hybrid_retrieve(
         self,
         query: str,
         top_k: int = 10,
@@ -82,7 +82,7 @@ class RetrieverService:
             top_k=top_k,
             similarity_threshold=similarity_threshold,
         )
-        cached_results = self.cache_service.get(retrieval_cache_key)
+        cached_results = await self.cache_service.get(retrieval_cache_key)
 
         if cached_results is not None:
             print("✅ RETRIEVAL CACHE HIT")
@@ -93,7 +93,7 @@ class RetrieverService:
             # Build cache key
             model_name = self.embedding_service.embedding_model_name
             cache_key = build_cache_key(query, model_name=model_name)
-            cached_embedding = self.cache_service.get(cache_key)
+            cached_embedding = await self.cache_service.get(cache_key)
 
             if cached_embedding is not None:
                 print("✅ EMBEDDING CACHE HIT")
@@ -104,7 +104,7 @@ class RetrieverService:
                 # 1. Generate query embedding
                 query_embedding = self.embedding_service.generate_embedding(query)
 
-                self.cache_service.set(cache_key, query_embedding, timeout=3600)
+                await self.cache_service.set(cache_key, query_embedding, timeout=3600)
 
             try:
                 # 2. Perform similarity search
@@ -136,46 +136,46 @@ class RetrieverService:
             final_results = fused_reciprocal_results[:top_k]
 
             # Cache the final results
-            self.cache_service.set(retrieval_cache_key, final_results, timeout=3600)
+            await self.cache_service.set(retrieval_cache_key, final_results, timeout=3600)
         return final_results
 
 
 #  To test the RetrieverService independently
 
-if __name__ == "__main__":
-    from app.cache.cache_service import CacheService
-    from app.cache.in_memory_cache import InMemoryCache
-    from app.core.config import get_settings
-    from app.rag.embeddings.embedding_service import EmbeddingService
-    from app.rag.vectorstore.vector_store_service import VectorStoreService
+# if __name__ == "__main__":
+#     from app.cache.cache_service import CacheService
+#     from app.cache.in_memory_cache import InMemoryCache
+#     from app.core.config import get_settings
+#     from app.rag.embeddings.embedding_service import EmbeddingService
+#     from app.rag.vectorstore.vector_store_service import VectorStoreService
 
-    # Example usage
-    settings = get_settings()
-    embedding_service = EmbeddingService()
-    vector_store_service = VectorStoreService(
-        supabase_url=settings.supabase_url,
-        supabase_key=settings.supabase_key,
-    )
-    in_memory_cache = InMemoryCache()
+#     # Example usage
+#     settings = get_settings()
+#     embedding_service = EmbeddingService()
+#     vector_store_service = VectorStoreService(
+#         supabase_url=settings.supabase_url,
+#         supabase_key=settings.supabase_key,
+#     )
+#     in_memory_cache = InMemoryCache()
 
-    cache_service = CacheService(cache=in_memory_cache)
+#     cache_service = CacheService(cache=in_memory_cache)
 
-    retriever_service = RetrieverService(
-        embedding_service=embedding_service,
-        vector_store_service=vector_store_service,
-        cache_service=cache_service,
-    )
+#     retriever_service = RetrieverService(
+#         embedding_service=embedding_service,
+#         vector_store_service=vector_store_service,
+#         cache_service=cache_service,
+#     )
 
-    # query = "What is the capital of France?"
-    # query = "who are you?"
-    query = "What is the capital of India?"
-    try:
-        print("First retrieval:")
-        first_results = retriever_service.hybrid_retrieve(query=query, top_k=5)
-        print(first_results)
+#     # query = "What is the capital of France?"
+#     # query = "who are you?"
+#     query = "What is the capital of India?"
+#     try:
+#         print("First retrieval:")
+#         first_results = retriever_service.hybrid_retrieve(query=query, top_k=5)
+#         print(first_results)
 
-        print("Second retrieval:")
-        second_results = retriever_service.hybrid_retrieve(query=query, top_k=5)
-        print(second_results)
-    except RetrievalException as e:
-        print(f"Retrieval failed ({e.status_code}): {e.detail}")
+#         print("Second retrieval:")
+#         second_results = retriever_service.hybrid_retrieve(query=query, top_k=5)
+#         print(second_results)
+#     except RetrievalException as e:
+#         print(f"Retrieval failed ({e.status_code}): {e.detail}")

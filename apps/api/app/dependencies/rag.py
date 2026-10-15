@@ -1,4 +1,3 @@
-from app.cache.cache_service import CacheService
 from app.cache.in_memory_cache import InMemoryCache
 from app.core.config import get_settings
 from app.dependencies.llm import llm_service
@@ -8,13 +7,18 @@ from app.rag.reranking.reranker_service import RerankService
 from app.rag.retrieval.retriever_service import RetrieverService
 from app.rag.tokenization.token_counter import TokenCounter
 from app.rag.vectorstore.vector_store_service import VectorStoreService
+from app.dependencies.cache import get_cache_service
 
 settings = get_settings()
 
 # Cache service
-in_memory_cache = InMemoryCache()
+# in_memory_cache = InMemoryCache()
 
-cache_service = CacheService(cache=in_memory_cache)
+# cache_service = CacheService(cache=in_memory_cache)
+
+# Cache service using Redis
+
+cache_service = get_cache_service()
 
 # Embedding service
 embedding_service = EmbeddingService()

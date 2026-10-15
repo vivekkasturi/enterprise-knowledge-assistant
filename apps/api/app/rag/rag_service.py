@@ -25,14 +25,14 @@ class RAGService:
         self.reranker_service = reranker_service
         self.token_counter = token_counter
         self.rag_max_tokens = rag_max_tokens
-
-    def build_context(
+    
+    async def build_context(
         self,
         query: str,
         top_k: int = 5,
         request_id: str | None = None,
     ) -> str:
-        context, _ = self._build_context_with_metrics(
+        context, _ = await self._build_context_with_metrics(
             query=query, top_k=top_k, request_id=request_id
         )
         return context
@@ -52,7 +52,7 @@ class RAGService:
             metrics,
         )
 
-    def _build_context_with_metrics(
+    async def _build_context_with_metrics(
         self,
         query: str,
         top_k: int = 5,
@@ -60,7 +60,7 @@ class RAGService:
     ) -> tuple[str, dict]:
         start_time = time.perf_counter()
         try:
-            results = self.retriever_service.hybrid_retrieve(query=query, top_k=top_k)
+            results = await self.retriever_service.hybrid_retrieve(query=query, top_k=top_k)
             retrieval_latency_ms = (time.perf_counter() - start_time) * 1000
             retrieval_count = len(results)
             self._log_latency(
@@ -150,7 +150,7 @@ class RAGService:
         rag_start_time = time.perf_counter()
 
         # 1. Retrieve relevant chunks and build context
-        context, context_metrics = self._build_context_with_metrics(
+        context, context_metrics = await self._build_context_with_metrics(
             query=query,
             top_k=top_k,
             request_id=request_id,
@@ -221,7 +221,7 @@ class RAGService:
         Stream the final answer from the LLM based on the query and context.
         """
 
-        context, context_metrics = self._build_context_with_metrics(
+        context, context_metrics = await self._build_context_with_metrics(
             query=query,
             top_k=top_k,
             request_id=request_id,
