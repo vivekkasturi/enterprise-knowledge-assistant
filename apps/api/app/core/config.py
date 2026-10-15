@@ -35,17 +35,25 @@ class Settings(BaseSettings):
         validation_alias=AliasChoices("LLM_MODEL", "MODEL"),
     )
 
-    llm_max_tokens: str = Field(
+    llm_max_tokens: int = Field(
         default=500, validation_alias=AliasChoices("LLM_MAX_TOKENS", "MAX_TOKENS")
     )
 
-    llm_temperature: str = Field(
+    llm_temperature: float = Field(
         default=0.7, validation_alias=AliasChoices("LLM_TEMPERATURE", "TEMPERATURE")
     )
+
+    rag_max_tokens: int = Field(default=2000, validation_alias="RAG_MAX_TOKENS")
 
     supabase_url: str = Field("SUPABASE_URL")
 
     supabase_key: str = Field("SUPABASE_KEY")
+
+    redis_url: str = Field(
+        default="redis://localhost:6379/0",
+        validation_alias="REDIS_URL",
+    )
+
 
 
 @lru_cache

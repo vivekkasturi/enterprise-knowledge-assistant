@@ -3,6 +3,7 @@ from sentence_transformers import SentenceTransformer
 
 class EmbeddingService:
     def __init__(self, embedding_model="sentence-transformers/all-MiniLM-L6-v2"):
+        self.embedding_model_name = embedding_model
         self.embedding_model = SentenceTransformer(embedding_model)
 
     def generate_embedding(self, text: list[list[float]]) -> list[float]:
@@ -32,6 +33,3 @@ class EmbeddingService:
         embeddings = self.embedding_model.encode(texts)
 
         return [embedding.tolist() for embedding in embeddings]
-
-
-service = EmbeddingService()

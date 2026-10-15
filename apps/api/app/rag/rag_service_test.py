@@ -31,7 +31,7 @@ async def main():
     )
     # await rag_service.answer(...)
     results = await rag_service.generate_final_answer(
-        query="What is the captical of India?",  # Expected output: "I dont have enough information."
+        query="What is the captial of India?",  # Expected output: "I dont have enough information."
         # query="How to reset password",  # Expected output: "should give correct answer."
         top_k=5,
     )

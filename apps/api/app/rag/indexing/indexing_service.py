@@ -43,6 +43,7 @@ class IndexingService:
         # 6. Return number of indexed chunks
         return len(chunks)
 
+
 # Below smippet is for testing the indexing service independently
 # if __name__ == "__main__":
 #     from app.rag.embeddings.embedding_service import EmbeddingService

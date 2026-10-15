@@ -13,3 +13,8 @@ class LLMService:
         messages = build_chat_messages(user_message)
         response = await self.generate(messages)
         return response
+
+
+    async def stream(self, messages: list[dict]) -> str:
+        async for chunk in self.llm_client.stream(messages=messages):
+            yield chunk
