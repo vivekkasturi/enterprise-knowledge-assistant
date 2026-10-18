@@ -1,5 +1,6 @@
 from app.core.logging import get_logger
 from app.rag.rag_service import RAGService
+from app.dependencies.graph import build_eka_graph
 
 logger = get_logger(__name__)
 
@@ -20,8 +21,9 @@ logger = get_logger(__name__)
 
 
 class ChatService:
-    def __init__(self, rag_service: RAGService):
+    def __init__(self, rag_service: RAGService, eka_graph:eka_graph):
         self.rag_service = rag_service
+        self.eka_graph = eka_graph
 
     async def chat(self) -> dict:
         logger.info("ChatService chat method called")
@@ -42,3 +44,14 @@ class ChatService:
             query=user_message, top_k=5, request_id=request_id
         ):
             yield chunk
+
+    async def langgraph_response(self, user_message: str, request_id: str | None):
+        logger.info("Langgraph is started")
+
+        initial_state = {
+             "query": user_message,
+              "request_id": request_id,
+        }
+        response = await self.eka_graph.ainvoke(initial_state)
+
+        return {"message": response["response"]}

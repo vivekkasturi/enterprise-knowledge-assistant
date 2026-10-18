@@ -5,12 +5,13 @@ from fastapi.responses import StreamingResponse
 from app.dependencies.rag import rag_service
 from app.schemas.health import ChatRequest
 from app.services.chat_service import ChatService
+from app.dependencies.graph import eka_graph
 
 router = APIRouter(prefix="/chat", tags=["Chat"])
 
 
 def get_chat_service() -> ChatService:
-    return ChatService(rag_service=rag_service)
+    return ChatService(rag_service=rag_service, eka_graph=eka_graph)
 
 
 @router.get("")
@@ -39,3 +40,17 @@ async def chat_stream_response(
         stream,
         media_type="text/plain"
     )
+
+@router.post("/langgraph/response")
+async def chat_langgraph_response(
+    request: ChatRequest,
+    http_request: Request,
+    chat_service: Annotated[ChatService, Depends(get_chat_service)]
+):
+    request_id = getattr(
+        http_request.state,
+        "request_id",
+        None
+    )
+    response = await chat_service.langgraph_response(request.message, request_id = request_id)
+    return response
