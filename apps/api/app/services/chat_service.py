@@ -1,6 +1,6 @@
 from app.core.logging import get_logger
 from app.rag.rag_service import RAGService
-from app.dependencies.graph import build_eka_graph
+from app.dependencies.graph import eka_graph
 
 logger = get_logger(__name__)
 
@@ -55,3 +55,13 @@ class ChatService:
         response = await self.eka_graph.ainvoke(initial_state)
 
         return {"message": response["response"]}
+
+    async def langgraph_stream(self, user_message:str, request_id:str | None):
+        logger.info("Langraph streaming is activated")
+
+        initial_state = {
+            "query": user_message,
+            "request_id": request_id
+        }
+        async for event in self.eka_graph.astream(initial_state, stream_mode="updates"):
+            yield event
