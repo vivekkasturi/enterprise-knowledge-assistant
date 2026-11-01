@@ -72,6 +72,7 @@ export async function chatStreamAPI(request:chatRequest, onChunk: (chunk: string
 
 
 export async function langgraphStreamAPI(request:chatRequest, onChunk: (chunk: string) => void): Promise<void> {
+    console.log("message in chatapi", request)
         console.log("Requesting chat stream...");
         const response = await fetch(`${API_BASE_URL}/chat/langgraph/stream`, {
             method: "POST",

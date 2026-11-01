@@ -31,14 +31,15 @@ export default function ChatBox() {
       //   setResult((prevResult) => prevResult + chunk);
         
       // })
-      await langgraphStreamAPI({message}, (chunk)=>{
-        console.log("langgraph streaming", chunk);
+      await langgraphStreamAPI({message}, (chunk) => {
+        console.log("langgraph streaming", message,chunk);
         setResult((prevResult)=> prevResult+chunk);
-        
       })
+
     } catch (error) {
       setResult(error instanceof Error ? error.message : "Unknown error");
     } finally {
+      console.log(typeof(result))
       setIsLoading(false);
     }
   }

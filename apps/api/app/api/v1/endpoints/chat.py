@@ -1,4 +1,3 @@
-import json
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, Request
@@ -70,7 +69,6 @@ async def chat_langgraph_stream(
         
             request.message, request_id=request_id
         ):
-            print(event,"event")
-            yield json.dumps(event, ensure_ascii=False) + "\n"
+            yield event
 
-    return StreamingResponse(stream(), media_type="application/x-ndjson")
+    return StreamingResponse(stream(), media_type="text/plain")

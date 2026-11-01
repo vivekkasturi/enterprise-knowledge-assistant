@@ -1,6 +1,6 @@
 from app.core.logging import get_logger
 from app.rag.rag_service import RAGService
-from app.dependencies.graph import eka_graph
+from typing import Any
 
 logger = get_logger(__name__)
 
@@ -21,7 +21,7 @@ logger = get_logger(__name__)
 
 
 class ChatService:
-    def __init__(self, rag_service: RAGService, eka_graph:eka_graph):
+    def __init__(self, rag_service: RAGService, eka_graph: Any):
         self.rag_service = rag_service
         self.eka_graph = eka_graph
 
@@ -63,5 +63,28 @@ class ChatService:
             "query": user_message,
             "request_id": request_id
         }
-        async for event in self.eka_graph.astream(initial_state, stream_mode="updates"):
-            yield event
+        streamed_nodes = set()
+        try:
+            async for mode, event in self.eka_graph.astream(
+                initial_state, stream_mode=["updates", "custom"]
+            ):
+                if mode == "custom" and event.get("type") == "token":
+                    content = event.get("content")
+                    if content:
+                        streamed_nodes.add(event.get("node"))
+                        yield content
+                elif mode == "updates":
+                    for node, update in event.items():
+                        # General answers arrive as a completed node update. RAG
+                        # answers have already been emitted through token events.
+                        if node not in streamed_nodes and isinstance(update, dict):
+                            response = update.get("response")
+                            if response:
+                                yield response
+        except Exception:
+            logger.exception("Chat stream failed | request_id=%s", request_id)
+            yield (
+                "\nUnable to complete your answer. Please try again. "
+                "If this continues, ask support to check the server logs"
+                + (f" for request {request_id}." if request_id else ".")
+            )
