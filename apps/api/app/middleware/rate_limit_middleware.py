@@ -15,7 +15,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         # Get the client IP address
         client_ip = request.client.host
-
+        
         # Get the current timestamp
         current_time = time.time()
 

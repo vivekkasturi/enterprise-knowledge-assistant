@@ -1,7 +1,7 @@
 from groq import AsyncGroq
 
 from app.core.exceptions import LLMServiceException
-
+from app.core.logging import get_logger
 
 class GroqClient:
     def __init__(self, api_key: str, model: str):
@@ -16,11 +16,28 @@ class GroqClient:
         temperature: float = 0.7,
     ) -> str:
         try:
+            logger = get_logger(__name__)
             response = await self.client.chat.completions.create(
-                model=self.model,
+            #     model=self.model,
                 max_tokens=max_tokens,
-                temperature=temperature,
-                messages=messages,
+            #     temperature=temperature,
+            #     messages=messages,
+                  model=self.model,
+                  messages=messages,
+                  stream=False,
+                  #max_tokens=512,
+          
+                  temperature=0.6,
+                  reasoning_effort="low",
+                  include_reasoning=False,
+            )
+
+
+            print("responde from groqClient")
+            logger.info(
+                "LLM generate response=%r type=%s",
+                response,
+                type(response).__name__,
             )
         except Exception as e:
             raise LLMServiceException(

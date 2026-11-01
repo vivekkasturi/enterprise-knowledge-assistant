@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { getChatStatus, chatStreamAPI } from "../api/chat.api"
+import { getChatStatus, chatStreamAPI, langgraphStreamAPI } from "../api/chat.api"
 
 export default function ChatBox() {
   const [message, setMessage] = useState("Hello from frontend");
@@ -26,14 +26,20 @@ export default function ChatBox() {
     try {
       // const data = await chatResponseApi({ message });
       console.log("### STREAM BUTTON HANDLER ###");
-      await chatStreamAPI({ message }, (chunk) => {
-        console.log("### UI STREAM CHUNK ###", chunk);
-        setResult((prevResult) => prevResult + chunk);
+      // await chatStreamAPI({ message }, (chunk) => {
+      //   console.log("### UI STREAM CHUNK ###", chunk);
+      //   setResult((prevResult) => prevResult + chunk);
         
+      // })
+      await langgraphStreamAPI({message}, (chunk) => {
+        console.log("langgraph streaming", message,chunk);
+        setResult((prevResult)=> prevResult+chunk);
       })
+
     } catch (error) {
       setResult(error instanceof Error ? error.message : "Unknown error");
     } finally {
+      console.log(typeof(result))
       setIsLoading(false);
     }
   }

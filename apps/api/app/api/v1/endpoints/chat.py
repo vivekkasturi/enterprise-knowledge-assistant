@@ -54,3 +54,21 @@ async def chat_langgraph_response(
     )
     response = await chat_service.langgraph_response(request.message, request_id = request_id)
     return response
+    
+
+@router.post("/langgraph/stream")
+async def chat_langgraph_stream(
+    request: ChatRequest,
+    http_request: Request,
+    chat_service: Annotated[ChatService, Depends(get_chat_service)],
+):
+    request_id = getattr(http_request.state, "request_id", None)
+
+    async def stream():
+        async for event in chat_service.langgraph_stream(
+        
+            request.message, request_id=request_id
+        ):
+            yield event
+
+    return StreamingResponse(stream(), media_type="text/plain")
