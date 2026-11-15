@@ -1,9 +1,8 @@
-import asyncio
 from app.agents.eka.graph.graph import build_eka_graph
+
 
 # Fake LLM service only for testing the graph
 class FakeLLMService:
-
     async def generate(self, messages: list[dict]) -> str:
         # Router node calls this
         return "GENE"
@@ -15,7 +14,6 @@ class FakeLLMService:
 
 # Fake RAG service only for testing the graph
 class FakeRAGService:
-
     async def generate_final_answer(self, query: str) -> str:
         return f"RAG response for: {query}"
 

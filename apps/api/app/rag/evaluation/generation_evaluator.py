@@ -158,7 +158,7 @@ GENERATED ANSWER:
 
         total_claims = int(result["total_claims"])
         supported_claims = int(result["supported_claims"])
-        score = float(result["score"])
+        # score = float(result["score"])
 
         # Validate evaluator output
         if total_claims < 0:

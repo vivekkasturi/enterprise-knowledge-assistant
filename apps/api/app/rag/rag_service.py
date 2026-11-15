@@ -1,12 +1,12 @@
 import time
 
+from app.core.exceptions import LLMServiceException, RetrievalException
 from app.core.logging import get_logger
 from app.prompts.rag_prompt import build_rag_messages
 from app.rag.reranking.reranker_service import RerankService
 from app.rag.retrieval.retriever_service import RetrieverService
 from app.rag.tokenization.token_counter import TokenCounter
 from app.services.llmservice import LLMService
-from app.core.exceptions import RetrievalException,LLMServiceException
 
 logger = get_logger(__name__)
 
@@ -25,7 +25,7 @@ class RAGService:
         self.reranker_service = reranker_service
         self.token_counter = token_counter
         self.rag_max_tokens = rag_max_tokens
-    
+
     async def build_context(
         self,
         query: str,
@@ -60,7 +60,9 @@ class RAGService:
     ) -> tuple[str, dict]:
         start_time = time.perf_counter()
         try:
-            results = await self.retriever_service.hybrid_retrieve(query=query, top_k=top_k)
+            results = await self.retriever_service.hybrid_retrieve(
+                query=query, top_k=top_k
+            )
             retrieval_latency_ms = (time.perf_counter() - start_time) * 1000
             retrieval_count = len(results)
             self._log_latency(
@@ -186,7 +188,7 @@ class RAGService:
                 llm_latency_ms,
                 token_usage=None,
             )
-            
+
         except LLMServiceException as e:
             llm_failure_latency_ms = (time.perf_counter() - start_time) * 1000
             logger.exception(
@@ -200,22 +202,20 @@ class RAGService:
         # Successful complete RAG request
         total_latency_ms = (time.perf_counter() - rag_start_time) * 1000
         self._log_latency(
-                request_id,
-                "entire_rag_request",
-                total_latency_ms,
-                **context_metrics,
+            request_id,
+            "entire_rag_request",
+            total_latency_ms,
+            **context_metrics,
         )
 
         # 4. Return generated answer
         return response
 
-
-
     async def stream_final_answer(
-    self,
-    query: str,
-    top_k: int = 5,
-    request_id: str | None = None,
+        self,
+        query: str,
+        top_k: int = 5,
+        request_id: str | None = None,
     ):
         """
         Stream the final answer from the LLM based on the query and context.

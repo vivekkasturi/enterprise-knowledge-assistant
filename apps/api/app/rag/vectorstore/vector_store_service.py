@@ -1,12 +1,10 @@
 import json
+import time
 
 import requests
 
-import time
-
 from app.core.exceptions import VectorStoreException
 from app.rag.vectorstore.circuit_breaker import CircuitBreaker
-
 
 RETRYABLE_STATUS_CODES = {
     429,
@@ -131,31 +129,19 @@ class VectorStoreService:
                 if attempt == max_attempts:
                     raise VectorStoreException(
                         status_code=504,
-                        detail=(
-                            f"Request timed out after "
-                            f"{max_attempts} attempts"
-                        ),
+                        detail=(f"Request timed out after {max_attempts} attempts"),
                     ) from e
 
-                print(
-                    f"Request timed out. "
-                    f"Attempt {attempt}/{max_attempts}."
-                )
+                print(f"Request timed out. Attempt {attempt}/{max_attempts}.")
 
             except requests.RequestException as e:
                 if attempt == max_attempts:
                     raise VectorStoreException(
                         status_code=503,
-                        detail=(
-                            f"Request failed after "
-                            f"{max_attempts} attempts: {e}"
-                        ),
+                        detail=(f"Request failed after {max_attempts} attempts: {e}"),
                     ) from e
 
-                print(
-                    f"Network request failed. "
-                    f"Attempt {attempt}/{max_attempts}."
-                )
+                print(f"Network request failed. Attempt {attempt}/{max_attempts}.")
 
             # Exponential backoff:
             # attempt 1 -> 1 second
@@ -253,10 +239,7 @@ class VectorStoreService:
         Perform PostgreSQL full-text keyword search.
         """
 
-        url = (
-            f"{self.supabase_url}"
-            "/rest/v1/rpc/keyword_search_rag_chunks"
-        )
+        url = f"{self.supabase_url}/rest/v1/rpc/keyword_search_rag_chunks"
 
         payload = {
             "search_query": keyword,

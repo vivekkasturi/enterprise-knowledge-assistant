@@ -19,7 +19,6 @@ class CircuitBreaker:
         self.state = "CLOSED"
         self.opened_at = None
 
-    
     def can_execute(self) -> bool:
         """
         Decide whether a request is currently allowed
@@ -37,10 +36,7 @@ class CircuitBreaker:
 
             return False
 
-        if self.state == "HALF_OPEN":
-            return True
-
-        return False
+        return self.state == "HALF_OPEN"
 
     def record_failure(self):
         """
