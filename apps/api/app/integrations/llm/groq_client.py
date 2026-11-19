@@ -3,6 +3,7 @@ from groq import AsyncGroq
 from app.core.exceptions import LLMServiceException
 from app.core.logging import get_logger
 
+
 class GroqClient:
     def __init__(self, api_key: str, model: str):
         self.api_key = api_key
@@ -18,20 +19,18 @@ class GroqClient:
         try:
             logger = get_logger(__name__)
             response = await self.client.chat.completions.create(
-            #     model=self.model,
+                #     model=self.model,
                 max_tokens=max_tokens,
-            #     temperature=temperature,
-            #     messages=messages,
-                  model=self.model,
-                  messages=messages,
-                  stream=False,
-                  #max_tokens=512,
-          
-                  temperature=0.6,
-                  reasoning_effort="low",
-                  include_reasoning=False,
+                #     temperature=temperature,
+                #     messages=messages,
+                model=self.model,
+                messages=messages,
+                stream=False,
+                # max_tokens=512,
+                temperature=0.6,
+                reasoning_effort="low",
+                include_reasoning=False,
             )
-
 
             print("responde from groqClient")
             logger.info(
@@ -49,28 +48,28 @@ class GroqClient:
 
     async def stream(
         self,
-        messages: list[dict], 
+        messages: list[dict],
         max_tokens: int = 100,
         temperature: float = 0.7,
     ):
         try:
             stream = await self.client.chat.completions.create(
-            #     model=self.model,
-            #     max_tokens=max_tokens,
-            #     temperature=temperature,
-            #     messages=messages,
-            #     stream=True,
-            # )
-           model=self.model,
-           messages=messages,
-           stream=True,
-           max_completion_tokens=512,
-           temperature=0.6,
-           reasoning_effort="low",
-           include_reasoning=False,
+                #     model=self.model,
+                #     max_tokens=max_tokens,
+                #     temperature=temperature,
+                #     messages=messages,
+                #     stream=True,
+                # )
+                model=self.model,
+                messages=messages,
+                stream=True,
+                max_completion_tokens=512,
+                temperature=0.6,
+                reasoning_effort="low",
+                include_reasoning=False,
             )
             async for chunk in stream:
-                  # TEMP DEBUG
+                # TEMP DEBUG
                 print("RAW GROQ CHUNK:", chunk)
                 content = chunk.choices[0].delta.content
                 # Temp debug: print the content of each chunk

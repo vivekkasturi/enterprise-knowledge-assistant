@@ -1,6 +1,7 @@
 import json
 
 from redis.exceptions import RedisError
+
 from app.cache.cache_service import CacheService
 from app.core.logging import get_logger
 
