@@ -33,7 +33,8 @@ User: Explain retrieval augmented generation.
 Output: GENERAL
 """
 
-def build_router_messages(user_message:str)-> list[dict[str, str]]:
+
+def build_router_messages(user_message: str) -> list[dict[str, str]]:
     """
     Build the message structure for the router prompt.
 

@@ -1,5 +1,6 @@
 from typing import Literal, TypedDict
 
+
 class GraphState(TypedDict):
     query: str
     request_id: str

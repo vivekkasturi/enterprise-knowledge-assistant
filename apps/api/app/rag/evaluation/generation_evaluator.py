@@ -1,63 +1,3 @@
-# from groq import Groq
-
-# from ragas.llms import llm_factory
-# from ragas.metrics.collections import Faithfulness
-# from app.core.config import get_settings
-
-# settings = get_settings()
-
-# # Evaluator client
-# groq_client = Groq(
-#     api_key=settings.groq_api_key,
-# )
-
-# # RAGAS-compatible evaluator LLM
-# evaluator_llm = llm_factory(
-#     settings.llm_model,
-#     provider="groq",
-#     client=groq_client,
-#     temperature=0,
-#     max_tokens=settings.llm_max_tokens,
-# )
-
-# # RAGAS Faithfulness evaluator
-# faithfulness_evaluator = Faithfulness(
-#     llm=evaluator_llm,
-#     max_output_tokens=settings.llm_max_tokens,
-#     temperature=settings.llm_temperature,
-# )
-
-# async def evaluate_faithfulness(
-#     query: str,
-#     generated_answer: str,
-#     retrieved_contexts: list[str],
-# ) -> float:
-
-#     result = await faithfulness_evaluator.ascore(
-#         query=query,
-#         answer=generated_answer,
-#         contexts=retrieved_contexts,
-#     )
-
-#     return result.value
-
-
-#     if __name__ == "__main__":
-#         import asyncio
-
-#         query = "What is the capital of France?"
-#         generated_answer = "The capital of France is Paris."
-#         retrieved_contexts = [
-#             "France is a country in Europe. Its capital is Paris.",
-#             "The Eiffel Tower is located in Paris, the capital of France.",
-#         ]
-
-#         score = asyncio.run(
-#             evaluate_faithfulness(query, generated_answer, retrieved_contexts)
-#         )
-#         print(f"Faithfulness score: {score}")
-
-
 import json
 
 from app.core.config import get_settings
@@ -158,7 +98,6 @@ GENERATED ANSWER:
 
         total_claims = int(result["total_claims"])
         supported_claims = int(result["supported_claims"])
-        score = float(result["score"])
 
         # Validate evaluator output
         if total_claims < 0:
@@ -322,21 +261,20 @@ if __name__ == "__main__":
         )
     )
 
-relevant_score = asyncio.run(
-    evaluate_answer_relevancy(
-        query=query,
-        generated_answer=relevant_answer,
+    relevant_score = asyncio.run(
+        evaluate_answer_relevancy(
+            query=query,
+            generated_answer=relevant_answer,
+        )
     )
-)
 
-irrelevant_score = asyncio.run(
-    evaluate_answer_relevancy(
-        query=query,
-        generated_answer=irrelevant_answer,
+    irrelevant_score = asyncio.run(
+        evaluate_answer_relevancy(
+            query=query,
+            generated_answer=irrelevant_answer,
+        )
     )
-)
 
-
-print(f"Relevant answer score: {relevant_score}")
-print(f"Irrelevant answer score: {irrelevant_score}")
-print(f"Faithfulness: {score}")
+    print(f"Relevant answer score: {relevant_score}")
+    print(f"Irrelevant answer score: {irrelevant_score}")
+    print(f"Faithfulness: {score}")

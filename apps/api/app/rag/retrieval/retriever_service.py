@@ -136,7 +136,9 @@ class RetrieverService:
             final_results = fused_reciprocal_results[:top_k]
 
             # Cache the final results
-            await self.cache_service.set(retrieval_cache_key, final_results, timeout=3600)
+            await self.cache_service.set(
+                retrieval_cache_key, final_results, timeout=3600
+            )
         return final_results
 
 

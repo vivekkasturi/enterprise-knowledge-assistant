@@ -1,6 +1,7 @@
+from typing import Any
+
 from app.core.logging import get_logger
 from app.rag.rag_service import RAGService
-from typing import Any
 
 logger = get_logger(__name__)
 
@@ -49,20 +50,17 @@ class ChatService:
         logger.info("Langgraph is started")
 
         initial_state = {
-             "query": user_message,
-              "request_id": request_id,
+            "query": user_message,
+            "request_id": request_id,
         }
         response = await self.eka_graph.ainvoke(initial_state)
 
         return {"message": response["response"]}
 
-    async def langgraph_stream(self, user_message:str, request_id:str | None):
+    async def langgraph_stream(self, user_message: str, request_id: str | None):
         logger.info("Langraph streaming is activated")
 
-        initial_state = {
-            "query": user_message,
-            "request_id": request_id
-        }
+        initial_state = {"query": user_message, "request_id": request_id}
         streamed_nodes = set()
         try:
             async for mode, event in self.eka_graph.astream(
