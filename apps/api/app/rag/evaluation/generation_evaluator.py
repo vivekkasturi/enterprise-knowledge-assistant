@@ -98,7 +98,6 @@ GENERATED ANSWER:
 
         total_claims = int(result["total_claims"])
         supported_claims = int(result["supported_claims"])
-       # score = float(result["score"])
 
         # Validate evaluator output
         if total_claims < 0:
@@ -205,9 +204,9 @@ GENERATED ANSWER:
     )
 
     try:
-        # result = json.loads(response)
+        result = json.loads(response)
 
-       # score = float(result["score"])
+        score = float(result["score"])
 
         if not 0.0 <= score <= 1.0:
             raise ValueError(f"Answer relevancy score must be between 0 and 1: {score}")
@@ -262,21 +261,20 @@ if __name__ == "__main__":
         )
     )
 
-relevant_score = asyncio.run(
-    evaluate_answer_relevancy(
-        query=query,
-        generated_answer=relevant_answer,
+    relevant_score = asyncio.run(
+        evaluate_answer_relevancy(
+            query=query,
+            generated_answer=relevant_answer,
+        )
     )
-)
 
-irrelevant_score = asyncio.run(
-    evaluate_answer_relevancy(
-        query=query,
-        generated_answer=irrelevant_answer,
+    irrelevant_score = asyncio.run(
+        evaluate_answer_relevancy(
+            query=query,
+            generated_answer=irrelevant_answer,
+        )
     )
-)
 
-
-print(f"Relevant answer score: {relevant_score}")
-print(f"Irrelevant answer score: {irrelevant_score}")
-print(f"Faithfulness: {score}")
+    print(f"Relevant answer score: {relevant_score}")
+    print(f"Irrelevant answer score: {irrelevant_score}")
+    print(f"Faithfulness: {score}")
